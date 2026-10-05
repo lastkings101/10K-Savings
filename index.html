@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>$10K Savings Chart</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAF8F4;--ink:#0F2A3D;--card:#fff;--line:#BFE6DC;--lagoon:#0E9C84;--sun:#FFC93C;--coral:#FF6B57;--muted:#3E5F70}
+@media (prefers-color-scheme:dark){:root{--bg:#0A1E2B;--ink:#F1FBF8;--card:#12303F;--line:#1E4A5C;--lagoon:#2FD1B4;--muted:#A9CBD6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-weight:600;line-height:1.5}
+main{max-width:860px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px))}
+h1,h2,.f{font-family:Fredoka,system-ui,sans-serif;font-weight:700}
+h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1.05;margin:0 0 6px}
+h2{margin:0 0 10px}
+.sub{margin:0 0 20px;color:var(--muted)}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:24px;padding:18px;margin-bottom:22px}
+.hide{display:none!important}
+input{width:100%;font:inherit;padding:10px 14px;margin:0 0 10px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink)}
+.btn{font:inherit;font-weight:800;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:8px 18px;cursor:pointer}
+.btn.main{background:var(--lagoon);border-color:var(--lagoon);color:#fff}
+.btn:focus-visible,.tile:focus-visible,input:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.err{color:var(--coral);font-weight:800;min-height:1.5em;margin:8px 0 0}
+.total{font-size:clamp(1.8rem,6vw,2.6rem);margin:0}
+.total small{font-size:.5em;color:var(--muted);font-weight:500}
+.bar{height:28px;border-radius:99px;background:var(--line);margin:12px 0}
+.fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--lagoon),var(--sun));transition:width .5s}
+.msg{margin:6px 0 0;font-size:1.1rem;font-weight:800;color:var(--coral)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:0;margin:0;list-style:none}
+@media (max-width:560px){.grid{grid-template-columns:repeat(3,1fr);gap:10px}}
+.tile{width:100%;aspect-ratio:1.25;border:2px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .15s,background .2s}
+.tile:hover{transform:translateY(-3px) rotate(-1deg)}
+.tile .a{font-family:Fredoka,sans-serif;font-size:1.35rem;font-weight:700;color:var(--lagoon)}
+.tile .ck{position:absolute;top:6px;right:8px;opacity:0}
+.tile[aria-pressed="true"]{background:var(--lagoon);border-color:var(--lagoon);color:#fff;animation:pop .3s}
+.tile[aria-pressed="true"] .a{color:var(--sun)}
+.tile[aria-pressed="true"] .ck{opacity:1}
+@keyframes pop{50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.quote{text-align:center;font-size:clamp(1.3rem,4.5vw,2rem);margin:28px 0 14px}
+.quote span{color:var(--coral)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+  <h1>26 pay checks. $10,010 saved.</h1>
+  <p class="sub">Save $385 from each pay check. Sign in to keep your progress on every device.</p>
+
+  <!-- Sign in -->
+  <section class="panel" id="auth">
+    <h2>Sign in to start saving</h2>
+    <label for="em" class="sub">Email</label>
+    <input id="em" type="email" autocomplete="email">
+    <label for="pw" class="sub">Password (at least 8 characters)</label>
+    <input id="pw" type="password" autocomplete="current-password" minlength="8">
+    <div class="row">
+      <button class="btn main" id="in" type="button">Sign in</button>
+      <button class="btn" id="up" type="button">Create account</button>
+      <button class="btn" id="fg" type="button">Forgot password</button>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+  </section>
+
+  <!-- Tracker -->
+  <div id="app" class="hide">
+    <section class="panel" aria-live="polite">
+      <div class="row" style="justify-content:space-between">
+        <span id="who" class="sub"></span>
+        <button class="btn" id="out" type="button">Sign out</button>
+      </div>
+      <p class="total f"><span id="amt">$0</span> <small>of $10,010 saved</small></p>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <p class="msg" id="msg"></p>
+    </section>
+    <ul class="grid" id="grid"></ul>
+    <p class="quote f">If not now, when? And if not <span>you</span>, who?</p>
+
+    <!-- Admin (only appears for the admin account; the database enforces access) -->
+    <section class="panel hide" id="admin">
+      <h2>Admin: everyone's progress</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Member</th><th>Pay checks</th><th>Saved</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// 1) Paste your own values from Supabase: Project Settings > API
+var SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+var SUPABASE_ANON_KEY = "PASTE_YOUR_ANON_PUBLIC_KEY_HERE";
+
+(function(){
+  var N=26, PAY=385, done=[], user=null;
+  var $=function(id){return document.getElementById(id)};
+  var db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  function err(t){$("err").textContent=t||""}
+  function money(n){return "$"+n.toLocaleString("en-US")}
+  function text(c){
+    if(c===0)return "Your first $385 is waiting. Tap Pay Check 1 when it's saved.";
+    if(c===N)return "You did it! $10,010 saved. Take a proud moment.";
+    if(c===13)return "Halfway there! $5,005 is in the bank.";
+    if(c<5)return "Great start. The first few are the hardest, keep going!";
+    if(c<13)return c+" down, "+(N-c)+" to go. You're building a habit!";
+    if(c<20)return "Past halfway. Don't stop now!";
+    return "So close! Only "+(N-c)+" more to go.";
+  }
+  function draw(){
+    var c=done.length;
+    $("amt").textContent=money(c*PAY);
+    $("fill").style.width=(c/N*100)+"%";
+    $("msg").textContent=text(c);
+    Array.prototype.forEach.call($("grid").children,function(li,i){
+      li.firstChild.setAttribute("aria-pressed",done.indexOf(i+1)>-1);
+    });
+  }
+  for(var i=1;i<=N;i++){
+    var li=document.createElement("li"),b=document.createElement("button");
+    b.type="button";b.className="tile";b.setAttribute("aria-pressed","false");
+    b.innerHTML='<span class="ck">&#10003;</span><span class="f">Pay Check '+i+'</span><span class="a">$385</span>';
+    (function(n){b.addEventListener("click",function(){toggle(n)})})(i);
+    li.appendChild(b);$("grid").appendChild(li);
+  }
+  async function toggle(n){
+    var had=done.indexOf(n)>-1;
+    if(had)done.splice(done.indexOf(n),1);else done.push(n);
+    draw();
+    var r=had
+      ? await db.from("progress").delete().eq("user_id",user.id).eq("paycheck",n)
+      : await db.from("progress").insert({user_id:user.id,paycheck:n});
+    if(r.error){ // undo on failure
+      if(had)done.push(n);else done.splice(done.indexOf(n),1);
+      draw();$("msg").textContent="Could not save. Check your connection and try again.";
+    }
+  }
+  async function load(session){
+    user=session.user;
+    $("auth").classList.add("hide");$("app").classList.remove("hide");
+    $("who").textContent="Signed in as "+user.email;
+    var p=await db.from("progress").select("paycheck").eq("user_id",user.id);
+    done=(p.data||[]).map(function(x){return x.paycheck});
+    draw();
+    var me=await db.from("profiles").select("is_admin").eq("id",user.id).single();
+    if(me.data&&me.data.is_admin)loadAdmin();
+  }
+  async function loadAdmin(){
+    $("admin").classList.remove("hide");
+    var pr=await db.from("profiles").select("id,email").order("email");
+    var pg=await db.from("progress").select("user_id");
+    var cnt={};(pg.data||[]).forEach(function(x){cnt[x.user_id]=(cnt[x.user_id]||0)+1});
+    var body=$("rows");body.textContent="";
+    (pr.data||[]).forEach(function(m){
+      var c=cnt[m.id]||0,tr=document.createElement("tr");
+      [m.email,c+" of "+N,money(c*PAY)].forEach(function(v){
+        var td=document.createElement("td");td.textContent=v;tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+  }
+  function creds(){
+    var e=$("em").value.trim(),p=$("pw").value;
+    if(!e){err("Enter your email address.");return null}
+    return {email:e,password:p};
+  }
+  $("in").addEventListener("click",async function(){
+    err();var c=creds();if(!c)return;
+    var r=await db.auth.signInWithPassword(c);
+    if(r.error)err("Sign in failed: "+r.error.message);
+  });
+  $("up").addEventListener("click",async function(){
+    err();var c=creds();if(!c)return;
+    if(c.password.length<8){err("Use a password with at least 8 characters.");return}
+    var r=await db.auth.signUp(c);
+    if(r.error)err("Could not create account: "+r.error.message);
+    else if(!r.data.session)err("Check your email to confirm your account, then sign in.");
+  });
+  $("fg").addEventListener("click",async function(){
+    err();var e=$("em").value.trim();
+    if(!e){err("Enter your email above first.");return}
+    var r=await db.auth.resetPasswordForEmail(e,{redirectTo:location.href.split("#")[0]});
+    err(r.error?"Could not send reset email: "+r.error.message:"Reset link sent. Check your email.");
+  });
+  $("out").addEventListener("click",function(){db.auth.signOut()});
+  db.auth.onAuthStateChange(function(ev,session){
+    if(ev==="PASSWORD_RECOVERY"){
+      var np=prompt("Enter your new password (at least 8 characters):");
+      if(np&&np.length>=8)db.auth.updateUser({password:np}).then(function(r){
+        if(r.error)alert("Could not update password: "+r.error.message);
+      });
+    }
+    if(session){load(session)}
+    else{user=null;done=[];$("app").classList.add("hide");$("admin").classList.add("hide");$("auth").classList.remove("hide");$("pw").value=""}
+  });
+})();
+</script>
+</body>
+</html>
