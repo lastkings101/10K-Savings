@@ -1,5 +1,5 @@
 // Simple app-shell cache. Network first so updates to index.html show up; cache is the offline fallback.
-const CACHE = "savings-v5";
+const CACHE = "savings-v6";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
