@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Savely</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#081826">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Savely">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@600;800&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAF8F4;--ink:#0F2A3D;--card:#fff;--line:#BFE6DC;--lagoon:#0E9C84;--sun:#FFC93C;--coral:#FF6B57;--muted:#3E5F70;--g1:#BDF0E3;--g2:#FFE9A8}
+@media (prefers-color-scheme:dark){:root{--bg:#0A1E2B;--ink:#F1FBF8;--card:#12303F;--line:#1E4A5C;--lagoon:#2FD1B4;--muted:#A9CBD6;--g1:#0F4B4A;--g2:#4A3A0E}}
+*{box-sizing:border-box}
+html{min-height:100%}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 8%,var(--g1),transparent 45%),radial-gradient(circle at 92% 28%,var(--g2),transparent 40%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-weight:600;line-height:1.5}
+main{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(40px + env(safe-area-inset-bottom,0px))}
+h1,h2,.f{font-family:Fredoka,system-ui,sans-serif;font-weight:700}
+h1{font-size:clamp(2rem,7vw,3.2rem);line-height:1.05;margin:0 0 6px}
+h2{margin:0 0 10px}
+.sub{margin:0 0 20px;color:var(--muted)}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:24px;padding:18px;margin-bottom:22px}
+.hide{display:none!important}
+input{width:100%;font:inherit;padding:12px 14px;margin:0 0 12px;border:2px solid var(--line);border-radius:14px;background:var(--bg);color:var(--ink)}
+label{display:block;color:var(--muted);margin:0 0 4px}
+.btn{font:inherit;font-weight:800;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:10px 20px;cursor:pointer;transition:transform .1s,filter .2s}
+.btn:hover{filter:brightness(1.07)}.btn:active{transform:scale(.95)}
+.btn.main{background:var(--lagoon);border-color:var(--lagoon);color:#fff}
+.btn.wide{width:100%;padding:13px;font-size:1.1rem}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.link{background:none;border:0;color:var(--lagoon);font:inherit;font-weight:800;cursor:pointer;text-decoration:underline;padding:8px 0}
+.btn:focus-visible,.tile:focus-visible,input:focus-visible,.link:focus-visible,.tabs button:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status{min-height:1.5em;margin:10px 0 0;font-weight:800;border-radius:12px}
+.status.bad{color:var(--coral)}.status.ok{color:var(--lagoon)}
+.hero{text-align:center;margin:8px 0 18px}
+.hero img{width:96px;height:96px;border-radius:24px;box-shadow:0 10px 28px rgba(14,156,132,.35);animation:bob 3s ease-in-out infinite}
+.hero .sub{margin:0}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0 0}
+.chips span{background:var(--card);border:2px solid var(--line);border-radius:99px;padding:4px 12px;font-size:.9rem}
+.tabs{display:flex;gap:4px;padding:4px;background:var(--bg);border-radius:99px;margin-bottom:16px}
+.tabs button{flex:1;font:inherit;font-weight:800;border:0;border-radius:99px;padding:10px;background:none;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--lagoon);color:#fff}
+.pw{position:relative}.pw input{padding-right:70px}
+.pw button{position:absolute;right:6px;top:6px;font-size:.85rem;padding:6px 12px}
+body.in @keyframes bob{50%{transform:translateY(-8px) rotate(-3deg)}}
+.total{font-size:clamp(1.8rem,6vw,2.6rem);margin:0}
+.total small{font-size:.5em;color:var(--muted);font-weight:500}
+.bar{height:28px;border-radius:99px;background:var(--line);margin:12px 0}
+.fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--lagoon),var(--sun));transition:width .5s}
+.msg{margin:6px 0 0;font-size:1.1rem;font-weight:800;color:var(--coral)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:0;margin:0;list-style:none}
+@media (max-width:560px){.grid{grid-template-columns:repeat(3,1fr);gap:10px}}
+.tile{width:100%;aspect-ratio:1.25;border:2px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:transform .15s,background .2s}
+.tile:hover{transform:translateY(-3px) rotate(-1deg)}.tile:active{transform:scale(.94)}
+.tile:disabled{opacity:.6;cursor:wait}
+.tile .a{font-family:Fredoka,sans-serif;font-size:1.35rem;font-weight:700;color:var(--lagoon)}
+.tile .ck{position:absolute;top:6px;right:8px;opacity:0}
+.tile[aria-pressed="true"]{background:var(--lagoon);border-color:var(--lagoon);color:#fff;animation:pop .3s}
+.tile[aria-pressed="true"] .a{color:var(--sun)}
+.tile[aria-pressed="true"] .ck{opacity:1}
+@keyframes pop{50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.quote{text-align:center;font-size:clamp(1.3rem,4.5vw,2rem);margin:28px 0 14px}
+.quote span{color:var(--coral)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);max-width:92%;padding:12px 18px;border-radius:16px;background:var(--ink);color:var(--bg);font-weight:800;opacity:0;pointer-events:none;transition:.25s;z-index:10;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.bad{background:var(--coral);color:#fff}#toast.ok{background:var(--lagoon);color:#fff}
+#off{position:fixed;top:0;left:0;right:0;z-index:11;background:var(--coral);color:#fff;text-align:center;font-weight:800;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px}
+body:not(.in){--bg:#081826;--ink:#F1FBF8;--card:rgba(15,42,58,.72);--line:#245468;--lagoon:#2FE3B8;--muted:#A9CBD6;--g1:rgba(47,227,184,.16);--g2:rgba(255,176,70,.2)}
+.login{max-width:520px;margin:0 auto}
+.brand{display:flex;gap:14px;align-items:center;margin:4px 0 22px}
+.brand img{width:60px;height:60px;border-radius:16px;box-shadow:0 8px 24px rgba(47,227,184,.3)}
+.brand b{display:block;font:800 2rem/1 Nunito,sans-serif}.brand span{color:var(--muted);font-size:.95rem}
+.login h1{font-family:Nunito,sans-serif;font-weight:800;font-size:clamp(2.1rem,8vw,3rem);line-height:1.08;margin:0 0 12px}
+.login h1 em{font-style:normal;color:var(--lagoon)}
+.lead{color:var(--muted);margin:0 0 22px;font-size:1.05rem}
+.glass{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:28px;padding:22px}
+.glass h2{font-family:Nunito,sans-serif;font-weight:800;font-size:1.5rem;margin:0 0 4px}
+.glass .sub{margin:0 0 16px;font-size:.95rem}
+.fld{position:relative;margin:0 0 12px}.fld input{margin:0;padding-left:44px}
+.fld .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none}
+.fld.pw input{padding-right:72px}
+.r{text-align:right;margin:-4px 0 12px}.r .link{padding:0}
+.hint{color:var(--muted);font-size:.85rem;margin:-4px 0 12px}
+.login .btn.main{color:#06222b;box-shadow:0 8px 22px rgba(47,227,184,.3)}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);margin:16px 0}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.two .btn{padding:11px 8px;font-size:.95rem;background:transparent}
+.two .btn:only-child{grid-column:1/-1}.g{color:#4C8DF6;font-weight:800}
+.tag{text-align:center;color:var(--muted);font-size:.9rem;margin:14px 0 0}
+.feats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
+.feats div{display:flex;gap:8px;align-items:center;font-size:.85rem;line-height:1.25;color:var(--muted)}
+.feats i{font-style:normal;font-size:1.5rem}
+.note{font:700 1.7rem/1.1 Caveat,cursive;color:#CDEFE6;text-align:center;transform:rotate(-4deg);margin:26px 0 0}
+.books{display:none}
+@media(min-width:1000px){.note{position:fixed;top:6vh;right:5vw;text-align:right;margin:0;font-size:2.2rem}
+.books{display:block;position:fixed;right:4vw;bottom:6vh;width:240px}
+.books b{display:block;font:700 1.5rem Caveat,cursive;padding:8px 22px;border-radius:8px;color:#0B2A3A;margin-top:3px;box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.books b:nth-child(1){background:#EADFC3;margin-left:18px}.books b:nth-child(2){background:#8ED4B2;margin-left:-6px}.books b:nth-child(3){background:#7E8CE0;margin-left:10px}.books b:nth-child(4){background:#9566D8;color:#fff}}
+@media(max-width:380px){.feats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="off" class="hide" role="status">You're offline. Progress can't be saved until you reconnect.</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<main>
+  <!-- Sign in / Create account / Reset -->
+  <section id="auth" class="login">
+    <div class="brand"><img src="icon-192.png" alt=""><div><b>Savely</b><span>Every Pay Day Counts</span></div></div>
+    <h1>Turn your <em>paychecks</em> into possibilities.</h1>
+    <p class="lead">Save automatically, watch your progress, and get closer to the life you want.</p>
+    <div class="panel glass">
+      <h2 id="vt">Sign in to Savely</h2>
+      <p class="sub" id="vs"></p>
+      <form id="form" novalidate>
+        <div id="fName" class="hide"><label for="nm">Full name</label>
+          <div class="fld"><span class="ic">&#128100;</span><input id="nm" autocomplete="name" placeholder="Your name"></div></div>
+        <label for="em">Email</label>
+        <div class="fld"><span class="ic">&#9993;&#65039;</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></div>
+        <div id="fPw"><label for="pw">Password</label>
+          <div class="fld pw"><span class="ic">&#128274;</span><input id="pw" type="password" autocomplete="current-password">
+            <button type="button" class="btn" id="eye" aria-label="Show password">Show</button></div></div>
+        <div id="fPw2" class="hide"><label for="pw2">Confirm password</label>
+          <div class="fld"><span class="ic">&#128274;</span><input id="pw2" type="password" autocomplete="new-password"></div>
+          <p class="hint">At least 8 characters, with letters and numbers.</p></div>
+        <div class="r" id="rf"><button class="link" id="fg" type="button">Forgot password?</button></div>
+        <button class="btn main wide" id="go" type="submit">Continue &rarr;</button>
+      </form>
+      <div class="or" id="orr"><span>or</span></div>
+      <div class="two"><button class="btn" id="sw" type="button">Create account</button>
+        <button class="btn" id="gg" type="button"><span class="g">G</span> Google</button></div>
+      <p class="status" id="err" role="alert"></p>
+      <p class="tag">Same goals. A brighter you. &#127793;</p>
+    </div>
+    <div class="feats"><div><i>&#128200;</i>Build better money habits</div><div><i>&#128737;&#65039;</i>Stay on track anywhere</div><div><i>&#127793;</i>Achieve a brighter future</div></div>
+    <p class="note">Save Today,<br>Live Brighter<br>Tomorrow &#9825;</p>
+    <aside class="books" aria-hidden="true"><b>Plan</b><b>Save</b><b>Grow</b><b>Freedom</b></aside>
+  </section>
+
+  <!-- New password (after clicking the reset email link) -->
+  <section class="panel hide" id="reset">
+    <h2>Choose a new password</h2>
+    <label for="np">New password (at least 8 characters)</label>
+    <input id="np" type="password" autocomplete="new-password" minlength="8">
+    <label for="np2">Confirm new password</label>
+    <input id="np2" type="password" autocomplete="new-password">
+    <button class="btn main wide" id="np-go" type="button">Save new password</button>
+    <p class="status" id="np-err" role="alert"></p>
+  </section>
+
+  <!-- Tracker -->
+  <div id="app" class="hide">
+    <section class="panel" aria-live="polite">
+      <div class="row" style="justify-content:space-between">
+        <span id="who" class="sub"></span>
+        <button class="btn" id="out" type="button">Sign out</button>
+      </div>
+      <p class="total f"><span id="amt">$0</span> <small>of $10,010 saved</small></p>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <p class="msg" id="msg"></p>
+    </section>
+    <ul class="grid" id="grid"></ul>
+    <p class="quote f">If not now, when? And if not <span>you</span>, who?</p>
+
+    <section class="panel hide" id="admin">
+      <h2>Admin: everyone's progress</h2>
+      <div class="scroll"><table>
+        <thead><tr><th>Member</th><th>Pay checks</th><th>Saved</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var SUPABASE_URL = "https://knsangqwdfhelzuttair.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_KjYJLbwcB5WTpUfszHqi5w_YQpDXOmU";
+
+(function(){
+  var N=26, PAY=385, done=[], pend={}, user=null, mode="in", loadedFor=null, recovering=false, tt;
+  var NET="Could not save, make sure you're connected to the Internet";
+  var $=function(id){return document.getElementById(id)};
+  function money(n){return "$"+n.toLocaleString("en-US")}
+  function say(id,t,k){var e=$(id);e.textContent=t||"";e.className="status "+(k||"")}
+  function toast(t,k){var e=$("toast");e.textContent=t;e.className="show "+(k||"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},4500)}
+  function nice(m){
+    m=m||"";
+    if(/failed to fetch|network|load failed/i.test(m))return "Could not connect, make sure you're connected to the Internet";
+    if(/invalid login/i.test(m))return "Wrong email or password. Please try again.";
+    if(/already (been )?registered/i.test(m))return "That email already has an account. Try signing in.";
+    if(/not confirmed/i.test(m))return "Please confirm your email first (check your inbox), then sign in.";
+    if(/rate limit|too many|seconds/i.test(m))return "Too many attempts. Please wait a minute and try again.";
+    return m||"Something went wrong. Please try again.";
+  }
+  function netUI(){$("off").classList.toggle("hide",navigator.onLine)}
+  window.addEventListener("online",function(){netUI();toast("Back online","ok")});
+  window.addEventListener("offline",netUI);netUI();
+
+  if(typeof supabase==="undefined"){say("err","Could not load the app, make sure you're connected to the Internet, then refresh.","bad");return}
+  var db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+  // Runs an action with the button disabled and a clear message on any failure
+  async function run(btn,label,box,fn){
+    if(!navigator.onLine){say(box,"You're offline. Connect to the Internet and try again.","bad");return}
+    var old=btn.textContent;btn.disabled=true;btn.textContent=label;
+    try{await fn()}catch(e){say(box,nice(e&&e.message),"bad")}
+    btn.disabled=false;btn.textContent=btn.id==="go"?LBL[view]:old;
+  }
+
+  function text(c){
+    if(c===0)return "Your first $385 is waiting. Tap Pay Check 1 when it's saved.";
+    if(c===N)return "You did it! $10,010 saved. Take a proud moment.";
+    if(c===13)return "Halfway there! $5,005 is in the bank.";
+    if(c<5)return "Great start. The first few are the hardest, keep going!";
+    if(c<13)return c+" down, "+(N-c)+" to go. You're building a habit!";
+    if(c<20)return "Past halfway. Don't stop now!";
+    return "So close! Only "+(N-c)+" more to go.";
+  }
+  function draw(){
+    var c=done.length;
+    $("amt").textContent=money(c*PAY);
+    $("fill").style.width=(c/N*100)+"%";
+    $("msg").textContent=text(c);
+    Array.prototype.forEach.call($("grid").children,function(li,i){
+      li.firstChild.setAttribute("aria-pressed",done.indexOf(i+1)>-1);
+    });
+  }
+  for(var i=1;i<=N;i++){
+    var li=document.createElement("li"),b=document.createElement("button");
+    b.type="button";b.className="tile";b.setAttribute("aria-pressed","false");
+    b.innerHTML='<span class="ck">&#10003;</span><span class="f">Pay Check '+i+'</span><span class="a">$385</span>';
+    (function(n,btn){btn.addEventListener("click",function(){toggle(n,btn)})})(i,b);
+    li.appendChild(b);$("grid").appendChild(li);
+  }
+  async function toggle(n,btn){
+    if(pend[n])return;
+    if(!navigator.onLine){toast(NET,"bad");return}
+    var had=done.indexOf(n)>-1;
+    pend[n]=true;btn.disabled=true;
+    if(had)done.splice(done.indexOf(n),1);else done.push(n);
+    draw();
+    var failed=false;
+    try{
+      var r=had
+        ? await db.from("progress").delete().eq("user_id",user.id).eq("paycheck",n)
+        : await db.from("progress").insert({user_id:user.id,paycheck:n});
+      failed=!!r.error;
+    }catch(e){failed=true}
+    if(failed){
+      if(had)done.push(n);else done.splice(done.indexOf(n),1);
+      draw();toast(NET,"bad");
+    }
+    pend[n]=false;btn.disabled=false;
+  }
+
+  function showApp(on){
+    $("auth").classList.toggle("hide",on);$("app").classList.toggle("hide",!on);
+    $("reset").classList.add("hide");document.body.classList.toggle("in",on);
+    if(!on)$("admin").classList.add("hide");
+  }
+  async function load(session){
+    user=session.user;showApp(true);
+    var nm=(user.user_metadata&&user.user_metadata.full_name)||"";$("who").textContent=nm?"Hi, "+nm.split(" ")[0]+"! ("+user.email+")":"Signed in as "+user.email;
+    try{
+      var p=await db.from("progress").select("paycheck").eq("user_id",user.id);
+      if(p.error)throw p.error;
+      done=(p.data||[]).map(function(x){return x.paycheck});
+      draw();
+      var me=await db.from("profiles").select("is_admin").eq("id",user.id).single();
+      if(me.data&&me.data.is_admin)await loadAdmin();
+    }catch(e){toast("Could not load your progress, make sure you're connected to the Internet","bad")}
+  }
+  async function loadAdmin(){
+    var pr=await db.from("profiles").select("id,email").order("email");
+    var pg=await db.from("progress").select("user_id");
+    if(pr.error||pg.error)throw (pr.error||pg.error);
+    $("admin").classList.remove("hide");
+    var cnt={};(pg.data||[]).forEach(function(x){cnt[x.user_id]=(cnt[x.user_id]||0)+1});
+    var body=$("rows");body.textContent="";
+    (pr.data||[]).forEach(function(m){
+      var c=cnt[m.id]||0,tr=document.createElement("tr");
+      [m.email,c+" of "+N,money(c*PAY)].forEach(function(v){
+        var td=document.createElement("td");td.textContent=v;tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+  }
+
+  // Config: set to true only after enabling Google in Supabase (Authentication > Providers)
+  var GOOGLE_ENABLED=false, BASE=location.origin+location.pathname;
+  var view="in", LBL={in:"Continue \u2192",up:"Create account \u2192",fg:"Send reset link"};
+  function show(id,on){$(id).classList.toggle("hide",!on)}
+  function setView(v){
+    view=v;say("err","");
+    var T={in:["Sign in to Savely","Access your account and keep building your savings habit.","Create account"],
+      up:["Create your account","Start your savings journey in under a minute.","I already have an account"],
+      fg:["Reset your password","Enter your email and we'll send you a reset link.","Back to sign in"]}[v];
+    $("vt").textContent=T[0];$("vs").textContent=T[1];$("sw").textContent=T[2];$("go").textContent=LBL[v];
+    show("fName",v==="up");show("fPw",v!=="fg");show("fPw2",v==="up");show("rf",v==="in");show("gg",v!=="fg");show("orr",v!=="fg");
+    $("pw").setAttribute("autocomplete",v==="in"?"current-password":"new-password");
+  }
+  function okPw(p){return p.length>=8&&/[A-Za-z]/.test(p)&&/\d/.test(p)}
+  var PWMSG="Password needs at least 8 characters, with letters and numbers.";
+  $("sw").addEventListener("click",function(){setView(view==="in"?"up":"in")});
+  $("fg").addEventListener("click",function(){setView("fg")});
+  $("eye").addEventListener("click",function(){
+    var sh=$("pw").type==="password";
+    $("pw").type=$("pw2").type=sh?"text":"password";$("eye").textContent=sh?"Hide":"Show";
+    $("eye").setAttribute("aria-label",sh?"Hide password":"Show password");
+  });
+  $("gg").addEventListener("click",function(){
+    if(!GOOGLE_ENABLED){say("err","Google sign-in isn't switched on yet. Please use your email for now.","bad");return}
+    run($("gg"),"Opening...","err",async function(){
+      var r=await db.auth.signInWithOAuth({provider:"google",options:{redirectTo:BASE}});
+      if(r.error)say("err",nice(r.error.message),"bad");
+    });
+  });
+  $("form").addEventListener("submit",function(ev){
+    ev.preventDefault();say("err","");
+    var e=$("em").value.trim(),p=$("pw").value,n=$("nm").value.trim();
+    if(view==="up"&&n.length<2){say("err","Please enter your full name.","bad");return}
+    if(!/^\S+@\S+\.\S+$/.test(e)){say("err","Enter a valid email address.","bad");return}
+    if(view!=="fg"){
+      if(!p){say("err","Enter your password.","bad");return}
+      if(view==="up"){
+        if(!okPw(p)){say("err",PWMSG,"bad");return}
+        if(p!==$("pw2").value){say("err","Passwords don't match.","bad");return}
+      }
+    }
+    var lbl={in:"Signing in...",up:"Creating account...",fg:"Sending..."}[view];
+    run($("go"),lbl,"err",async function(){
+      if(view==="in"){
+        var r=await db.auth.signInWithPassword({email:e,password:p});
+        if(r.error)say("err",nice(r.error.message),"bad");
+        else say("err","Signed in! Loading your chart...","ok");
+      }else if(view==="up"){
+        var s=await db.auth.signUp({email:e,password:p,options:{data:{full_name:n},emailRedirectTo:BASE}});
+        if(s.error){say("err",nice(s.error.message),"bad");return}
+        if(s.data.user&&s.data.user.identities&&!s.data.user.identities.length){say("err",nice("already registered"),"bad");return}
+        if(!s.data.session){setView("in");say("err","Account created! We sent a confirmation link to "+e+". Open it, then sign in.","ok")}
+      }else{
+        var q=await db.auth.resetPasswordForEmail(e,{redirectTo:BASE});
+        if(q.error){say("err","Could not send reset email: "+nice(q.error.message),"bad");return}
+        setView("in");say("err","If an account exists for "+e+", a reset link is on its way. Check your inbox and spam folder.","ok");
+      }
+    });
+  });
+  $("out").addEventListener("click",function(){
+    if(!navigator.onLine){toast("You're offline. Connect to the Internet to sign out.","bad");return}
+    run($("out"),"Signing out...","err",async function(){
+      var r=await db.auth.signOut();
+      if(r.error)toast("Could not sign out: "+nice(r.error.message),"bad");
+    });
+  });
+  $("np-go").addEventListener("click",function(){
+    var p=$("np").value;say("np-err","");
+    if(!okPw(p)){say("np-err",PWMSG,"bad");return}
+    if(p!==$("np2").value){say("np-err","Passwords don't match.","bad");return}
+    run($("np-go"),"Saving...","np-err",async function(){
+      var r=await db.auth.updateUser({password:p});
+      if(r.error){say("np-err","Could not update password: "+nice(r.error.message),"bad");return}
+      recovering=false;$("np").value=$("np2").value="";toast("Password updated","ok");
+      var s=await db.auth.getSession();
+      if(s.data.session){loadedFor=s.data.session.user.id;load(s.data.session)}
+    });
+  });
+  setView("in");
+  if(/error_code=otp_expired|error=access_denied/.test(location.hash)){
+    say("err","That link has expired or was already used. Choose Forgot password to get a new one.","bad");
+    history.replaceState(null,"",location.pathname+location.search);
+  }
+
+  // setTimeout avoids a known Supabase deadlock when calling the API inside this callback
+  db.auth.onAuthStateChange(function(ev,session){
+    setTimeout(function(){
+      if(ev==="PASSWORD_RECOVERY"){
+        recovering=true;$("auth").classList.add("hide");$("app").classList.add("hide");$("reset").classList.remove("hide");return;
+      }
+      if(session){
+        if(recovering)return;
+        if(loadedFor!==session.user.id){loadedFor=session.user.id;load(session)}
+      }else{
+        user=null;done=[];loadedFor=null;recovering=false;showApp(false);$("pw").value="";say("err","");
+      }
+    },0);
+  });
+})();
+</script>
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js")})}
+</script>
+</body>
+</html>
