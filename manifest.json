@@ -1,16 +1,31 @@
 {
-  "name": "$10K Savings Chart",
-  "short_name": "$10K Savings",
-  "description": "Track 26 pay checks and $10,010 saved.",
+  "name": "Savely",
+  "short_name": "Savely",
+  "description": "Every Pay Day Counts",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0A1E2B",
-  "theme_color": "#0E9C84",
+  "background_color": "#081826",
+  "theme_color": "#081826",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
